@@ -1,0 +1,3 @@
+# main.py
+with open('output.txt', 'w') as f:
+    f.write("Hello, World! This is the output of the Python script.")

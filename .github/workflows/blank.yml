@@ -1,30 +1,36 @@
-name: Python application
+from flask import Flask, render_template, request
 
-on: [push]
+app = Flask(__name__)
 
-jobs:
-  build:
+@app.route('/')
+def index():
+    return render_template('index.html')
 
-    runs-on: ubuntu-latest
+@app.route('/diagnose', methods=['POST'])
+def diagnose():
+    # Get form data
+    name = request.form['name']
+    age = request.form['age']
+    gender = request.form['gender']
+    weight = float(request.form['weight'])
+    hb = float(request.form['hb'])
+    bp = int(request.form['bp'])
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+    # Analyze data
+    weight_message = "You are healthy, don't worry!" if weight < 110 else "You are overweight."
+    hb_message = "You are not anemic." if hb > 12 else "You are anemic."
+    bp_message = "You are not hypertensive." if bp < 120 else "You are hypertensive."
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.x'  # Replace with your desired Python version
+    result = {
+        'name': name,
+        'age': age,
+        'gender': gender,
+        'weight_message': weight_message,
+        'hb_message': hb_message,
+        'bp_message': bp_message
+    }
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
+    return render_template('result.html', result=result)
 
-    - name: Run script
-      run: python main.py
-
-    - name: Upload results
-      uses: actions/upload-artifact@v3
-      with:
-        name: results
-        path: output.txt
+if __name__ == '__main__':
+    app.run(debug=True)
